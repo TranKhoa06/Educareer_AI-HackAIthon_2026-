@@ -1,0 +1,26 @@
+CẨM NANG HƯỚNG DẪN: CÁCH TÍNH ĐIỂM HỌC BẠ VÀ CẤU TRÚC BẢN ĐỒ NĂNG LỰC
+
+1. CƠ CẤU BẢN ĐỒ TRỤC NĂNG LỰC ĐA CHIỀU (RADAR CHART)
+Bản đồ năng lực vẽ biểu đồ Radar gồm 6 trục năng lực cốt lõi. Điểm số của mỗi trục được tổng hợp từ 3 nguồn dữ liệu theo tỷ trọng:
+- Điểm học bạ (Academic): Chiếm 30%
+- Sở thích nghề nghiệp Holland (RIASEC): Chiếm 40%
+- Đặc điểm tính cách MBTI: Chiếm 30%
+
+Công thức tổng quát cho mỗi trục năng lực:
+Điểm Trục = (Điểm Học Bạ liên quan x 10 x 30%) + (Điểm Holland tương ứng x 40%) + (Điểm tương thích MBTI x 2 x 30%)
+
+2. DANH SÁCH 6 TRỤC NĂNG LỰC CỐT LÕI
+- AN (Phân tích & Logic): Thể hiện tư duy phản biện, suy luận logic, phân tích dữ liệu. Liên quan môn học: Toán, Tin học. Nhóm Holland: I (Nghiên cứu). Trọng số MBTI ưu tiên: T (Thinking), J (Judging), N (Intuition).
+- SX (Sáng tạo & Biểu đạt): Khả năng tư duy nghệ thuật, thiết kế, sáng tạo ý tưởng. Môn học liên quan: Ngữ văn, Nghệ thuật. Nhóm Holland: A (Nghệ thuật). Trọng số MBTI ưu tiên: N (Intuition), P (Perceiving).
+- GT (Giao tiếp & Kết nối): Khả năng thuyết phục, thương lượng, thấu cảm xã hội. Môn học liên quan: Tiếng Anh, Ngữ văn. Nhóm Holland: S (Xã hội). Trọng số MBTI ưu tiên: E (Extraversion), F (Feeling).
+- KT (Kỹ thuật & Thực hành): Khả năng làm việc trực quan với thiết bị, máy móc, thuật toán thực tế. Môn học liên quan: Vật lý, Hóa học, Tin học, Công nghệ. Nhóm Holland: R (Thực tế). Trọng số MBTI ưu tiên: S (Sensing), T (Thinking).
+- TC (Tổ chức & Quy trình): Khả năng sắp xếp, tuân thủ quy trình hành chính, cẩn trọng sổ sách. Môn học liên quan: Toán học, Công nghệ. Nhóm Holland: C (Nghiệp vụ). Trọng số MBTI ưu tiên: J (Judging), S (Sensing).
+- LD (Lãnh đạo & Quyết đoán): Khả năng dẫn dắt, lập chiến lược, kinh doanh và điều hành. Môn học liên quan: Toán học, Tiếng Anh. Nhóm Holland: E (Doanh nhân). Trọng số MBTI ưu tiên: E (Extraversion), T (Thinking).
+
+3. ĐẶC THÙ MÔN HỌC THEO CẤP LỚP (GDPT 2018)
+- THPT (Lớp 10, 11, 12): Các môn Vật lý, Hóa học, Sinh học, Lịch sử, Địa lý, GD Kinh tế & Pháp luật là các môn học riêng biệt có điểm riêng.
+- THCS (Lớp 9): Các môn Vật lý, Hóa học, Sinh học được tích hợp chung trong môn Khoa học tự nhiên (KHTN). Khi học sinh Lớp 9 nhập học bạ, điểm môn Khoa học tự nhiên sẽ tự động được gán đồng đều sang 3 môn thành phần (Vật lý, Hóa học, Sinh học) để đảm bảo không bị thiếu điểm khi tính toán các trục năng lực liên quan.
+
+4. CÁCH XỬ LÝ ĐIỂM HỌC KỲ
+- Học kỳ 1 chỉ có điểm HK1: Lấy điểm HK1 làm điểm Cả Năm.
+- Có đầy đủ điểm cả 2 học kỳ: Điểm cả năm = (Điểm HK1 + Điểm HK2 x 2) / 3.
