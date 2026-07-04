@@ -425,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
                 ? 'http://localhost:5000' 
-                : 'https://educareer-api.onrender.com';
+                : 'https://educareer-ai-hackaithon-2026.onrender.com';
             
             console.log(`Connecting to API proxy server at ${API_BASE_URL}/api/scan-transcript...`);
             
