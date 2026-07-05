@@ -174,7 +174,32 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
         let answerText = "AI không thể phản hồi lúc này.";
         
         // Intelligent parsing based on typical VNPT Smartbot responses
-        if (responseData.data && responseData.data.text) {
+        if (typeof responseData === 'string' && responseData.includes('data:')) {
+            // It's an SSE stream! The text usually accumulates in the 'card_data' array.
+            const lines = responseData.split('\n');
+            let lastValidText = "";
+            for (const line of lines) {
+                if (line.trim().startsWith('data:')) {
+                    try {
+                        const jsonStr = line.replace('data:', '').trim();
+                        const parsed = JSON.parse(jsonStr);
+                        if (parsed.object && parsed.object.sb && parsed.object.sb.card_data) {
+                            const cards = parsed.object.sb.card_data;
+                            if (cards.length > 0 && cards[0].text) {
+                                lastValidText = cards[0].text;
+                            }
+                        }
+                    } catch (e) {
+                        // Ignore JSON parse errors for incomplete chunks
+                    }
+                }
+            }
+            if (lastValidText) {
+                answerText = lastValidText;
+            } else {
+                answerText = responseData;
+            }
+        } else if (responseData.data && responseData.data.text) {
             answerText = responseData.data.text; // assistant-stream format
         } else if (responseData.message) {
             answerText = responseData.message;
