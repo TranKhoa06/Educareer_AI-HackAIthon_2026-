@@ -221,10 +221,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isNaN(v1)) v1 = 0.0;
             if (isNaN(v2)) v2 = 0.0;
 
-            if (v1 < 0) { v1 = 0.0; input1.value = "0.0"; }
-            if (v1 > 10) { v1 = 10.0; input1.value = "10.0"; }
-            if (v2 < 0) { v2 = 0.0; input2.value = "0.0"; }
-            if (v2 > 10) { v2 = 10.0; input2.value = "10.0"; }
+            // Smart typing format: if typing '85', convert to '8.5'
+            if (v1 > 10 && v1 <= 100) { v1 = v1 / 10; input1.value = v1.toFixed(1); }
+            else if (v1 > 100) { v1 = 10.0; input1.value = "10.0"; }
+            else if (v1 < 0) { v1 = 0.0; input1.value = "0.0"; }
+
+            if (v2 > 10 && v2 <= 100) { v2 = v2 / 10; input2.value = v2.toFixed(1); }
+            else if (v2 > 100) { v2 = 10.0; input2.value = "10.0"; }
+            else if (v2 < 0) { v2 = 0.0; input2.value = "0.0"; }
 
             if (v1 > 0 && v2 > 0) {
                 inputCN.value = ((v1 + v2 * 2) / 3).toFixed(1);
@@ -270,10 +274,14 @@ document.addEventListener('DOMContentLoaded', () => {
         let grade1 = parseFloat(inputGradeHK1 ? inputGradeHK1.value : 0.0) || 0.0;
         let grade2 = parseFloat(inputGradeHK2 ? inputGradeHK2.value : 0.0) || 0.0;
 
+        // Apply same smart formatting rule for safety if they skipped the event listener
+        if (grade1 > 10 && grade1 <= 100) grade1 = grade1 / 10;
+        if (grade1 > 100) grade1 = 10.0;
         if (grade1 < 0) grade1 = 0.0;
-        if (grade1 > 10) grade1 = 10.0;
+        
+        if (grade2 > 10 && grade2 <= 100) grade2 = grade2 / 10;
+        if (grade2 > 100) grade2 = 10.0;
         if (grade2 < 0) grade2 = 0.0;
-        if (grade2 > 10) grade2 = 10.0;
 
         // Append to DOM
         appendGradeRow(subject.name, subject.code, subject.key, grade1.toFixed(1), grade2.toFixed(1));
@@ -721,6 +729,25 @@ document.addEventListener('DOMContentLoaded', () => {
         calculateGPA();
         updateAddableSubjectsDropdown();
     }
+
+    // 15. Attach Smart Typing to static Add Subject Inputs
+    const newHk1Input = document.getElementById('new-subject-grade-hk1');
+    const newHk2Input = document.getElementById('new-subject-grade-hk2');
+    
+    const smartTypingHandler = function() {
+        let val = parseFloat(this.value);
+        if (isNaN(val)) return;
+        if (val > 10 && val <= 100) {
+            this.value = (val / 10).toFixed(1);
+        } else if (val > 100) {
+            this.value = "10.0";
+        } else if (val < 0) {
+            this.value = "0.0";
+        }
+    };
+
+    if (newHk1Input) newHk1Input.addEventListener('input', smartTypingHandler);
+    if (newHk2Input) newHk2Input.addEventListener('input', smartTypingHandler);
 
     function showSaveSuccessModal() {
         const modal = document.createElement('div');
