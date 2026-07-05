@@ -129,21 +129,31 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
             return res.status(400).json({ error: 'Câu hỏi quá dài.' });
         }
 
+        // Credentials from environment variables
         const accessToken = process.env.VNPT_ACCESS_TOKEN;
+        const tokenId = process.env.VNPT_TOKEN_ID;
+        const tokenKey = process.env.VNPT_TOKEN_KEY;
         const botId = process.env.VNPT_BOT_ID;
-        const integrationId = process.env.VNPT_INTEGRATION_ID;
-        const botApiUrl = process.env.VNPT_BOT_API_URL || 'https://api-smartbot.vnptai.vn/api/v1/chat';
+        
+        // Correct endpoint from Postman collection
+        const botApiUrl = process.env.VNPT_BOT_API_URL || 'https://assistant-stream.vnpt.vn/v1/conversation';
 
-        if (!accessToken || !botId || !integrationId) {
+        if (!accessToken || !botId || !tokenId || !tokenKey) {
             console.warn('Cảnh báo: Thiếu Token Smartbot trong .env, sẽ dùng Fallback.');
             return res.status(503).json({ error: 'Server authentication keys are missing', fallback_required: true });
         }
 
+        // Prepare payload according to Postman collection
         const payload = {
             bot_id: botId,
-            integration_id: integrationId,
-            message: message,
-            student_profile: studentProfile || null,
+            sender_id: studentProfile ? `student_${studentProfile.mbti}` : "anonymous_student",
+            text: message,
+            input_channel: "livechat",
+            session_id: "hackathon_session_1", // You can make this dynamic if needed
+            metadata: {
+                button_variables: [],
+                student_profile: studentProfile || null // Pass extra context here safely
+            }
         };
 
         const vnptResponse = await axios.post(
@@ -151,18 +161,39 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
             payload,
             {
                 headers: {
-                    Authorization: accessToken.startsWith('Bearer ') ? accessToken : `Bearer ${accessToken}`,
+                    'Authorization': accessToken.startsWith('Bearer ') ? accessToken : `Bearer ${accessToken}`,
+                    'Token-id': tokenId,
+                    'Token-key': tokenKey,
                     'Content-Type': 'application/json',
                 },
             }
         );
 
+        // Extracting response data. The response format might vary.
+        const responseData = vnptResponse.data;
+        let answerText = "AI không thể phản hồi lúc này.";
+        
+        // Intelligent parsing based on typical VNPT Smartbot responses
+        if (responseData.data && responseData.data.text) {
+            answerText = responseData.data.text; // assistant-stream format
+        } else if (responseData.message) {
+            answerText = responseData.message;
+        } else if (typeof responseData === 'string') {
+            answerText = responseData;
+        } else if (responseData.data && responseData.data.messages && responseData.data.messages.length > 0) {
+            answerText = responseData.data.messages[0].text || "AI không thể phản hồi lúc này.";
+        } else if (responseData.text) {
+             answerText = responseData.text;
+        }
+
         res.json({
-            answer: vnptResponse.data,
+            answer: answerText,
+            raw: responseData 
         });
 
     } catch (error) {
         console.error('VNPT Smartbot API error:', error.message);
+        if (error.response) console.error(error.response.data);
         res.status(500).json({
             error: 'Không thể kết nối chatbot lúc này.',
             fallback_required: true
