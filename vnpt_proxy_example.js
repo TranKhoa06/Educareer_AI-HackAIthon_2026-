@@ -12,14 +12,24 @@ const multer = require('multer');
 const axios = require('axios');
 const FormData = require('form-data');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() }); // Store files in memory buffer
 
+app.use(helmet());
 // Enable CORS so your frontend can call this backend
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
+
+// Basic rate limiting for the chat endpoint
+const apiLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 60, // Limit each IP to 60 requests per windowMs
+    message: "Quá nhiều yêu cầu từ IP của bạn, vui lòng thử lại sau 1 phút."
+});
 
 const PORT = process.env.PORT || 5000;
 // Configure VNPT OCR API endpoint (HackAIthon target URL)
@@ -102,8 +112,63 @@ function extractSubjectGrade(vnptData, keywords) {
     // Traverse VNPT response content (e.g. data.info, data.blocks, or text annotations)
     // We match the subject names and find the corresponding numerical grade cells.
     // If not found, return random mock grade (e.g. 8.2 - 9.8) for simulation fallback:
-    return (8.2 + Math.random() * 1.6).toFixed(1);
 }
+
+// =========================================================================
+// 4. Endpoint for Chatbot API (VNPT Smartbot)
+// =========================================================================
+app.post('/api/chat', apiLimiter, async (req, res) => {
+    try {
+        const { message, studentProfile } = req.body;
+
+        if (!message || typeof message !== 'string') {
+            return res.status(400).json({ error: 'Thiếu nội dung câu hỏi.' });
+        }
+
+        if (message.length > 2000) {
+            return res.status(400).json({ error: 'Câu hỏi quá dài.' });
+        }
+
+        const accessToken = process.env.VNPT_ACCESS_TOKEN;
+        const botId = process.env.VNPT_BOT_ID;
+        const integrationId = process.env.VNPT_INTEGRATION_ID;
+        const botApiUrl = process.env.VNPT_BOT_API_URL || 'https://api-smartbot.vnptai.vn/api/v1/chat';
+
+        if (!accessToken || !botId || !integrationId) {
+            console.warn('Cảnh báo: Thiếu Token Smartbot trong .env, sẽ dùng Fallback.');
+            return res.status(503).json({ error: 'Server authentication keys are missing', fallback_required: true });
+        }
+
+        const payload = {
+            bot_id: botId,
+            integration_id: integrationId,
+            message: message,
+            student_profile: studentProfile || null,
+        };
+
+        const vnptResponse = await axios.post(
+            botApiUrl,
+            payload,
+            {
+                headers: {
+                    Authorization: accessToken.startsWith('Bearer ') ? accessToken : `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+
+        res.json({
+            answer: vnptResponse.data,
+        });
+
+    } catch (error) {
+        console.error('VNPT Smartbot API error:', error.message);
+        res.status(500).json({
+            error: 'Không thể kết nối chatbot lúc này.',
+            fallback_required: true
+        });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`EduCareer secure proxy server running on http://localhost:${PORT}`);

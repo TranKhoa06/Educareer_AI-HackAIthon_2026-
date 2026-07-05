@@ -945,7 +945,7 @@
         }
 
         // Chat Submit handler
-        function handleChatSubmit() {
+        async function handleChatSubmit() {
             const query = chatInput.value.trim();
             if (query === '') return;
 
@@ -953,7 +953,48 @@
             appendMessage('user', query);
             chatInput.value = '';
 
-            // Search bot reply
+            // Show typing indicator
+            if (typingIndicator) {
+                typingIndicator.style.display = 'block';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            try {
+                // Call the Proxy Server
+                // Note: Change to https://educareer-proxy.onrender.com/api/chat if deployed
+                const PROXY_URL = 'https://educareer-proxy.onrender.com/api/chat'; 
+                
+                const response = await fetch(PROXY_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: query,
+                        studentProfile: studentData
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.answer) {
+                    // Success API call
+                    if (typingIndicator) typingIndicator.style.display = 'none';
+                    // We assume the answer from API might be plain text or markdown, 
+                    // format it simply for now or trust it has HTML. 
+                    // To be safe against plain text, wrapping in div:
+                    const formattedAnswer = data.answer.includes('<p>') ? data.answer : `<div><p>${data.answer.replace(/\\n/g, '<br>')}</p></div>`;
+                    appendMessage('bot', formattedAnswer);
+                    return; // Stop here, no need for fallback
+                } else {
+                    // API returned error or fallback requested
+                    console.warn("Smartbot API failed or requires fallback:", data.error);
+                }
+            } catch (error) {
+                console.warn("Network error calling Smartbot API, using fallback...", error);
+            }
+
+            // ==========================================
+            // FALLBACK: If API fails, use static data
+            // ==========================================
             const searchKey = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             let reply = "Cảm ơn câu hỏi của em. Hệ thống RAG đang đối chiếu dữ liệu tuyển sinh. Anh đề xuất em bấm chọn các câu hỏi nhanh gợi ý ở phía trên hoặc ở cột bên trái để nhận thông tin cẩm nang chuẩn xác nhất nhé!";
             
@@ -964,16 +1005,8 @@
                 }
             }
 
-            // Show typing indicator
-            if (typingIndicator) {
-                typingIndicator.style.display = 'block';
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
-
-            setTimeout(() => {
-                if (typingIndicator) typingIndicator.style.display = 'none';
-                appendMessage('bot', reply);
-            }, 1000);
+            if (typingIndicator) typingIndicator.style.display = 'none';
+            appendMessage('bot', reply);
         }
 
         // Click listeners
