@@ -953,6 +953,28 @@
             appendMessage('user', query);
             chatInput.value = '';
 
+            // ---------------------------------------------------------
+            // Intercept personality/interest queries if data is missing
+            // ---------------------------------------------------------
+            const lowerQuery = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const isPersonalityQuestion = lowerQuery.includes('tinh cach') || lowerQuery.includes('mbti') || lowerQuery.includes('holland') || lowerQuery.includes('so thich');
+
+            if (isPersonalityQuestion && (!hasMbti && !hasHolland)) {
+                const fallbackReply = `Hiện tại anh thấy em chưa làm bài trắc nghiệm Tính cách (MBTI) hoặc Sở thích (Holland), nên anh chưa có đủ dữ liệu để phân tích sở trường của em. Em hãy nhấn vào mục <strong>"Làm trắc nghiệm định hướng"</strong> ở cột bên trái hoặc quay lại trang chủ để làm bài kiểm tra trước nhé!`;
+                
+                if (typingIndicator) {
+                    typingIndicator.style.display = 'block';
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+                
+                setTimeout(() => {
+                    if (typingIndicator) typingIndicator.style.display = 'none';
+                    appendMessage('bot', fallbackReply);
+                }, 800);
+                
+                return; // Stop execution here, don't call API
+            }
+
             // Show typing indicator
             if (typingIndicator) {
                 typingIndicator.style.display = 'block';
